@@ -282,7 +282,7 @@ const HomePage = () => {
   // Effect for page title
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.title = `Watari | Watch Anime Online, Free Anime Streaming`;
+      document.title = `Anveshna. | Watch Anime Online, Free Anime Streaming`;
     }
   }, [activeTab]);
 

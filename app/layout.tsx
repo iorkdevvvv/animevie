@@ -18,7 +18,19 @@ const ptSans = PT_Sans({
 
 export const metadata: Metadata = {
   title: "Anveshna.",
-  description: "Anime streaming platform",
+  description: "A comprehensive anime streaming platform",
+  openGraph: {
+    title: "Anveshna.",
+    description: "A comprehensive anime streaming platform",
+    images: [
+      {
+        url: "/og-image.png", // Place this in /public
+        width: 1200,
+        height: 630,
+        alt: "Anveshna.",
+      },
+    ],
+  },
 }
 
 export default function RootLayout({
@@ -37,7 +49,7 @@ export default function RootLayout({
         <StyledComponentsRegistry>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

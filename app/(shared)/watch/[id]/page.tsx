@@ -22,6 +22,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useCountdown } from "@/hooks/useCountdown";
+import Loader from "@/app/loading";
 
 interface PageProps {
   params: Promise<{
@@ -176,6 +177,38 @@ export default function WatchPage({ params }: PageProps) {
     }
   }, [episodeNumber, episodes]);
 
+  // Save to watch history - separate function
+  const saveToWatchHistory = useCallback((episode: Episode) => {
+    if (!animeInfo || !episode) return;
+    
+    try {
+      const watchHistory = JSON.parse(
+        localStorage.getItem("watch-history") || "{}"
+      );
+      watchHistory[animeId] = {
+        episodeNumber: episode.number,
+        episodeId: episode.id,
+        timestamp: Date.now(),
+        animeTitle: animeInfo?.title?.english || animeInfo?.title?.romaji,
+        animeImage: animeInfo?.image || animeInfo?.cover,
+        episodeImage: episode.image,
+        cover: animeInfo?.cover,
+      };
+      localStorage.setItem("watch-history", JSON.stringify(watchHistory));
+      console.log("Saved to watch history:", watchHistory[animeId]);
+    } catch (error) {
+      console.error("Failed to save to watch history:", error);
+    }
+  }, [animeId, animeInfo]);
+
+  // Save to history whenever currentEpisode changes (including page load)
+  useEffect(() => {
+    if (currentEpisode && animeInfo) {
+      console.log("Current episode changed:", currentEpisode);
+      saveToWatchHistory(currentEpisode);
+    }
+  }, [currentEpisode, animeInfo, saveToWatchHistory]);
+
   // Handle episode selection
   const handleEpisodeSelect = useCallback(
     (episodeId: string) => {
@@ -191,23 +224,10 @@ export default function WatchPage({ params }: PageProps) {
           scroll: false,
         });
 
-        // Save to localStorage for watch history
-        const watchHistory = JSON.parse(
-          localStorage.getItem("watch-history") || "{}"
-        );
-        watchHistory[animeId] = {
-          episodeNumber: episode.number,
-          episodeId: episode.id,
-          timestamp: Date.now(),
-          animeTitle: animeInfo?.title?.english || animeInfo?.title?.romaji,
-          animeImage: animeInfo?.image || animeInfo?.cover,
-          episodeImage: episode.image,
-          cover: animeInfo?.cover,
-        };
-        localStorage.setItem("watch-history", JSON.stringify(watchHistory));
+        // Note: saveToWatchHistory will be called automatically by useEffect when currentEpisode changes
       }
     },
-    [episodes, animeId, animeInfo, router, searchParams]
+    [episodes, animeId, router, searchParams]
   );
 
   // Navigation functions
@@ -252,23 +272,7 @@ export default function WatchPage({ params }: PageProps) {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background ">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 w-48 bg-muted rounded-md mb-6"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="lg:col-span-3">
-                <div className="aspect-video bg-muted rounded-lg mb-4"></div>
-                <div className="h-20 bg-muted rounded-lg"></div>
-              </div>
-              <div className="space-y-4">
-                <div className="h-64 bg-muted rounded-lg"></div>
-                <div className="h-32 bg-muted rounded-lg"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Loader/>
     );
   }
 
