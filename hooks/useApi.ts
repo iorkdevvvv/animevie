@@ -11,6 +11,14 @@ function ensureUrlEndsWithSlash(url: string): string {
 const BASE_URL = ensureUrlEndsWithSlash(
     process.env.NEXT_PUBLIC_BACKEND_URL as string,
 );
+const STREAM_URL = ensureUrlEndsWithSlash(
+    process.env.NEXT_PUBLIC_STREAMING_BACKEND_URL as string,
+);
+
+export const MEDIA_PROXY_URL = ensureUrlEndsWithSlash(
+    process.env.NEXT_PUBLIC_CF_PROXY_URL as string,
+);
+
 const SKIP_TIMES = ensureUrlEndsWithSlash(
     process.env.NEXT_PUBLIC_SKIP_TIMES as string,
 );
@@ -65,7 +73,6 @@ function handleError(error: any, context: string) {
         errorMessage += `: ${error.message}`;
     }
 
-    console.error(`${errorMessage}`, error);
     throw new Error(errorMessage);
 }
 
@@ -88,12 +95,6 @@ function createOptimizedSessionStorageCache(
     maxAge: number,
     cacheKey: string,
 ) {
-    console.log('Creating cache with key:', cacheKey);
-    console.log('api url', BASE_URL);
-    console.log('proxy url', PROXY_URL);
-    console.log('skip times', SKIP_TIMES);
-    console.log('api key', API_KEY);
-    
     if (typeof window === 'undefined') {
         return {
             get: () => undefined,
@@ -218,6 +219,15 @@ async function fetchFromProxy(url: string, cache: any, cacheKey: string) {
         handleError(error, 'data');
         throw error; // Rethrow the error for the caller to handle
     }
+}
+
+// function to get new episode id 
+function parseEpisodeId(input: string) {
+  const [seriesId, , number, type] = input.split("$");
+  return {
+    episodeId: `${seriesId}::ep=${number}`,
+    type
+  };
 }
 
 // Function to fetch anime data
@@ -384,12 +394,53 @@ export async function fetchAnimeEmbeddedEpisodes(episodeId: string) {
 }
 
 // Function to fetch anime streaming links
-export async function fetchAnimeStreamingLinks(episodeId: string, serverName: string = "vidcloud") {
-    // serverName = ["vidcloud", "vidstreaming"]
-    const url = `${BASE_URL}anime/zoro/watch/${episodeId}?server=${serverName}`;
-    const cacheKey = generateCacheKey('animeStreamingLinks', episodeId, serverName);
+export async function fetchAnimeStreamingLinks(
+    episodeId: string,
+    serverName: string = "vidcloud",
+    type: string
+) {
+    const parsedEpisodeId = parseEpisodeId(episodeId).episodeId;
 
-    return fetchFromProxy(url, videoSourcesCache, cacheKey);
+    const urlHD2 = `${STREAM_URL}api/v1/stream?id=${encodeURIComponent(parsedEpisodeId)}&type=${type}&server=hd-2`;
+    const urlHD3 = `${STREAM_URL}api/v1/stream?id=${encodeURIComponent(parsedEpisodeId)}&type=${type}&server=hd-3`;
+
+    try {
+        const [responseHD2, responseHD3] = await Promise.allSettled([
+            axios.get(urlHD2, { headers: { Accept: "*/*" } }).then(res => res.data),
+            axios.get(urlHD3, { headers: { Accept: "*/*" } }).then(res => res.data)
+        ]);
+
+        const hd2Data = responseHD2.status === "fulfilled" ? responseHD2.value.data : null;
+        const hd3Data = responseHD3.status === "fulfilled" ? responseHD3.value.data : null;
+
+        if (!hd2Data && !hd3Data) {
+            return { success: false, data: null };
+        }
+
+        let selectedServerData = hd2Data || hd3Data;
+        let selectedServer = hd2Data ? "HD-2" : "HD-3";
+
+        return {
+            success: true,
+            data: {
+                id: parsedEpisodeId,
+                type,
+                // Handle new API object format
+                link: selectedServerData?.link?.file || null,
+                linkType: selectedServerData?.link?.type || null,
+                tracks: selectedServerData?.tracks || [],
+                intro: selectedServerData?.intro || null,
+                outro: selectedServerData?.outro || null,
+                server: selectedServer
+            }
+        };
+    } catch (error) {
+        return {
+            success: false,
+            data: null,
+            error: axios.isAxiosError(error) ? error.message : "Unknown error"
+        };
+    }
 }
 
 // Function to fetch skip times for an anime episode

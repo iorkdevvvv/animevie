@@ -3,7 +3,6 @@ import {
   FaMicrophone,
   FaClosedCaptioning,
   FaBell,
-  FaDownload,
   FaShare,
 } from 'react-icons/fa';
 
@@ -13,7 +12,6 @@ interface MediaSourceProps {
   setServerName: (serverName: string) => void;
   language: string;
   setLanguage: (language: string) => void;
-  downloadLink: string;
   episodeId?: string;
   airingTime?: string;
   nextEpisodenumber?: string;
@@ -24,7 +22,6 @@ export const MediaSource: React.FC<MediaSourceProps> = ({
   setServerName,
   language,
   setLanguage,
-  downloadLink,
   episodeId,
   airingTime,
   nextEpisodenumber,
@@ -47,14 +44,7 @@ export const MediaSource: React.FC<MediaSourceProps> = ({
           <>
             <h4 className="text-lg font-bold mb-4 max-sm:text-base max-sm:mb-0">
               You're watching <strong>Episode {episodeId}</strong>
-              <a
-                href={downloadLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center ml-2 p-2 gap-1 text-sm font-bold border-none rounded-lg cursor-pointer bg-card text-card-foreground text-center no-underline transition-all duration-200 hover:bg-accent hover:scale-105 active:scale-95"
-              >
-                <FaDownload className="text-xs" />
-              </a>
+              
               <button
                 onClick={handleShareClick}
                 className="inline-flex items-center ml-2 p-2 gap-1 text-sm font-bold border-none rounded-lg cursor-pointer bg-card text-card-foreground no-underline transition-all duration-200 hover:bg-accent hover:scale-105 active:scale-95"

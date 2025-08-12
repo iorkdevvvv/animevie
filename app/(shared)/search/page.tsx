@@ -197,7 +197,7 @@ const Search = () => {
       
       setHasNextPage(fetchedData.hasNextPage);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      // Silent error handling
     } finally {
       setIsLoading(false);
       setIsFetchingMore(false);

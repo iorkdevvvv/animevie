@@ -129,9 +129,9 @@ export function Player({
     if (autoPlay && player.current) {
       player.current
         .play()
-        .catch((e: Error) =>
-          console.log("Playback failed to start automatically:", e)
-        );
+        .catch((e: Error) => {
+          // Silent error handling for autoplay failure
+        });
     }
   }, [autoPlay, src]);
 
@@ -270,6 +270,13 @@ export function Player({
     return skipTimes;
   }
 
+  interface Track {
+  file: string;
+  label?: string; // Optional because not all entries have it
+  kind: "captions" | "thumbnails" | string; // Can extend with other types if needed
+  default?: boolean; // Optional because not all entries have it
+}
+
   // Modified fetchAndSetAnimeSource function
   async function fetchAndSetAnimeSource() {
     try {
@@ -286,42 +293,38 @@ export function Player({
         }
       }
 
-      console.log(`Fetching streaming links for episode: ${modifiedEpisodeId}, server: ${serverName}`);
+      const response = await fetchAnimeStreamingLinks(modifiedEpisodeId, serverName, language);
       
-      const response = await fetchAnimeStreamingLinks(modifiedEpisodeId, serverName);
-      if (!response || !response.sources || response.sources.length === 0) {
-        console.log(response);
-        console.error("No streaming sources found for this episode");
+      if (!response || !response.success || !response.data) {
         return;
       }
 
-      // Handle streaming sources
-      const sources: StreamingSource[] = response.sources.map(
-        (source: any) => ({
-          url: source.url,
-        })
-      );
-      if (sources.length > 0) {
-        setSrc(sources[0].url);
-        updateDownloadLink(sources[0].url);
+      const data = response.data;
+      
+      // Handle streaming sources - check for valid link
+      if (data.link) {
+        const streamUrl = typeof data.link === 'string' ? data.link : data.link;
+        if (streamUrl) {
+          setSrc(streamUrl);
+          updateDownloadLink(streamUrl);
+        } else {
+          return;
+        }
       } else {
-        console.error("No valid streaming sources found");
+        return;
       }
 
-      // Handle subtitles
-      const subtitles = response.subtitles || [];
-      if (subtitles.length > 0) {
-        setSubtitles(subtitles);
+      // Handle subtitles/tracks
+      const tracks = data.tracks || [];
+      if (tracks.length > 0) {
+        // Filter out thumbnails and process subtitles
+        const subtitleTracks = tracks.filter((track: Track) => track.kind !== 'thumbnails');
+        setSubtitles(subtitleTracks);
       }
 
-      // Handle intro/outro data from the same response
-      if (response.intro || response.outro) {
-        console.log("Processing intro/outro data from API response:", {
-          intro: response.intro,
-          outro: response.outro
-        });
-        
-        const convertedSkipTimes = convertIntroOutroToSkipTimes(response.intro, response.outro);
+      // Handle intro/outro data from the response
+      if (data.intro || data.outro) {
+        const convertedSkipTimes = convertIntroOutroToSkipTimes(data.intro, data.outro);
         setSkipTimes(convertedSkipTimes);
         
         // Generate VTT for chapters if we have skip times and total duration
@@ -341,7 +344,7 @@ export function Player({
       }
 
     } catch (error) {
-      console.error("Failed to fetch anime streaming links", error);
+      // Silent error handling
     }
   }
 
@@ -371,7 +374,7 @@ export function Player({
       await new Promise((resolve) => setTimeout(resolve, 200)); // Delay for transition
       await onEpisodeEnd();
     } catch (error) {
-      console.error("Error moving to the next episode:", error);
+      // Silent error handling
     }
   };
 
@@ -381,14 +384,12 @@ export function Player({
 
   useEffect(() => {
     if(canPlay) {
-      // If the player is ready to play, we can set the current time}
-      console.log("Player is ready to play", { canPlay, seeking, waiting });  
+      // If the player is ready to play, we can set the current time
       setShowLoader(false);
     }else if (seeking || waiting) {
       setShowLoader(true);
     } else {
       // If the player is not ready, we show the loader
-      console.log("Player is not ready to play", { canPlay, seeking, waiting });
       setShowLoader(true);
     }
   },[canPlay, seeking, waiting]);

@@ -37,7 +37,6 @@ export default function CategoryNavigation() {
   const handleCategoryClick = (category: string) => {
     setActiveCategory(category);
     // You can insert your filtering logic here
-    console.log(`Category clicked: ${category}`);
     Router.push(`/search?&genres=${category}&sort=POPULARITY_DESC&type=ANIME`);
   };
 

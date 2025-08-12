@@ -86,7 +86,7 @@ export default function HistoryPage() {
 
       return items;
     } catch (error) {
-      console.error("Failed to parse watch history data:", error);
+      // Silent error handling
       return [];
     }
   }, [watchHistoryData, searchQuery, sortBy]);
@@ -101,7 +101,7 @@ export default function HistoryPage() {
       localStorage.setItem(LOCAL_STORAGE_KEYS.WATCH_HISTORY, newHistoryData);
       setWatchHistoryData(newHistoryData);
     } catch (error) {
-      console.error("Failed to remove item from watch history:", error);
+      // Silent error handling
     }
   };
 

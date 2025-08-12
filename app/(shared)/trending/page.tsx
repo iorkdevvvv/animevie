@@ -41,7 +41,7 @@ export default function AnimeCardExample() {
       
       setAnimeList(data.results || []);
     } catch (error) {
-      console.error("Error fetching seasonal anime:", error);
+      // Silent error handling
       setAnimeList([]);
     } finally {
       setLoading(false);

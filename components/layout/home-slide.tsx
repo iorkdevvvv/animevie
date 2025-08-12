@@ -105,8 +105,6 @@ export const HomeCarousel = ({ data, loading, error }: HomeCarouselProps) => {
 
   if (loading) return <SkeletonSlide />;
 
-  console.log("Valid Data:", validData);
-
   if (validData.length === 0) {
 
     return (

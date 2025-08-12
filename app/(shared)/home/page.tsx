@@ -70,7 +70,7 @@ const SimpleLayout = styled.div`
 const ContentSidebarLayout = styled.div`
   display: flex;
   gap: 1.5rem;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -86,22 +86,23 @@ const TabContainer = styled.div`
 const Tab = styled.button<{ $isActive: boolean }>`
   background: none;
   border: none;
-  color: ${props => props.$isActive ? 'var(--primary)' : 'var(--muted-foreground)'};
+  color: ${(props) =>
+    props.$isActive ? "var(--primary)" : "var(--muted-foreground)"};
   font-size: 1rem;
-  font-weight: ${props => props.$isActive ? 'bold' : 'normal'};
+  font-weight: ${(props) => (props.$isActive ? "bold" : "normal")};
   padding: 0.5rem 1rem;
   cursor: pointer;
   position: relative;
 
   &:after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -0.5rem;
     left: 0;
     width: 100%;
     height: 3px;
     background-color: var(--primary);
-    transform: scaleX(${props => props.$isActive ? 1 : 0});
+    transform: scaleX(${(props) => (props.$isActive ? 1 : 0)});
     transition: transform 0.2s ease-in-out;
   }
 
@@ -116,9 +117,9 @@ const ErrorMessage = styled.div<{ title?: string }>`
   padding: 1rem;
   border-radius: var(--radius);
   margin-top: 1rem;
-  
+
   &:before {
-    content: "${props => props.title || 'Error'}";
+    content: "${(props) => props.title || "Error"}";
     font-weight: bold;
     display: block;
     margin-bottom: 0.5rem;
@@ -127,28 +128,28 @@ const ErrorMessage = styled.div<{ title?: string }>`
 
 const HomePage = () => {
   const [itemsCount, setItemsCount] = useState(
-    typeof window !== 'undefined' ? (window.innerWidth > 500 ? 24 : 15) : 24
+    typeof window !== "undefined" ? (window.innerWidth > 500 ? 24 : 15) : 24
   );
 
   // Reduced active time to 5mins
   const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window === 'undefined') return 'TRENDING';
-    
+    if (typeof window === "undefined") return "TRENDING";
+
     const time = Date.now();
-    const savedData = localStorage.getItem('home tab');
+    const savedData = localStorage.getItem("home tab");
     if (savedData) {
       try {
         const { tab, timestamp } = JSON.parse(savedData);
         if (time - timestamp < 300000) {
           return tab;
         } else {
-          localStorage.removeItem('home tab');
+          localStorage.removeItem("home tab");
         }
       } catch (e) {
-        localStorage.removeItem('home tab');
+        localStorage.removeItem("home tab");
       }
     }
-    return 'TRENDING';
+    return "TRENDING";
   });
 
   // Unified state management
@@ -171,30 +172,28 @@ const HomePage = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-
-
   // Effect for window resizing
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const handleResize = () => {
       setItemsCount(window.innerWidth > 500 ? 24 : 15);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     handleResize(); // Call on mount
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   // Effect to fetch watched episodes from local storage
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const fetchWatchedEpisodes = () => {
-      const watchedEpisodesData = localStorage.getItem('watched-episodes');
+      const watchedEpisodesData = localStorage.getItem("watched-episodes");
       if (watchedEpisodesData) {
         try {
           const allEpisodes = JSON.parse(watchedEpisodesData);
@@ -209,7 +208,7 @@ const HomePage = () => {
             watchedEpisodes: latestEpisodes,
           }));
         } catch (e) {
-          console.error("Error parsing watched episodes:", e);
+          // Silent error handling
         }
       }
     };
@@ -222,8 +221,8 @@ const HomePage = () => {
     const fetchCount = Math.ceil(itemsCount * 1.4);
     const fetchData = async () => {
       try {
-        setState((prevState) => ({ 
-          ...prevState, 
+        setState((prevState) => ({
+          ...prevState,
           error: null,
           loading: {
             ...prevState.loading,
@@ -232,7 +231,7 @@ const HomePage = () => {
             topRated: true,
             topAiring: true,
             upcoming: true,
-          }
+          },
         }));
 
         const [trending, popular, topRated, topAiring, upcoming] =
@@ -243,8 +242,6 @@ const HomePage = () => {
             fetchTopAiringAnime(1, 6),
             fetchUpcomingSeasons(1, 6),
           ]);
-
-         
 
         setState((prevState) => ({
           ...prevState,
@@ -264,7 +261,7 @@ const HomePage = () => {
       } catch (fetchError) {
         setState((prevState) => ({
           ...prevState,
-          error: 'An unexpected error occurred',
+          error: "An unexpected error occurred",
           loading: {
             trending: false,
             popular: false,
@@ -277,22 +274,22 @@ const HomePage = () => {
     };
 
     fetchData();
-  }, [itemsCount,currentPage]);
-  
+  }, [itemsCount, currentPage]);
+
   // Effect for page title
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       document.title = `Anveshna. | Watch Anime Online, Free Anime Streaming`;
     }
   }, [activeTab]);
 
   // Effect to save active tab to localStorage
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const time = Date.now();
     const tabData = JSON.stringify({ tab: activeTab, timestamp: time });
-    localStorage.setItem('home tab', tabData);
+    localStorage.setItem("home tab", tabData);
   }, [activeTab]);
 
   const filterAndTrimAnime = (animeList: Paging): Anime[] =>
@@ -305,10 +302,10 @@ const HomePage = () => {
             ) */
       .slice(0, itemsCount);
 
-const renderCardGrid = (
+  const renderCardGrid = (
     animeData: Anime[],
     isLoading: boolean,
-    hasError: boolean,
+    hasError: boolean
   ) => (
     <Section>
       {isLoading || hasError ? (
@@ -327,74 +324,74 @@ const renderCardGrid = (
     </Section>
   );
 
-  
-
   const SEASON = getNextSeason();
 
   return (
     <SimpleLayout>
       {state.error && (
-        <ErrorMessage title='Error Message'>
+        <ErrorMessage title="Error Message">
           <p>ERROR: {state.error}</p>
         </ErrorMessage>
       )}
-      
-        <HomeCarousel
-          data={state.trendingAnime}
-          loading={state.loading.trending}
-          error={state.error}
-        />
+
+      <HomeCarousel
+        data={state.trendingAnime}
+        loading={state.loading.trending}
+        error={state.error}
+      />
       <CategoryNavigation />
-      
+
       <WatchHistorySlider />
       <ContentSidebarLayout>
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
+            display: "flex",
+            flexDirection: "column",
             flexGrow: 1,
-            gap: '1rem',
+            gap: "1rem",
           }}
         >
-         <PaginationComponent totalPages={10} initialPage={1} initialTab="TRENDING" setPage={setCurrentPage}  setCategory={setActiveTab}/>
+          <PaginationComponent
+            totalPages={10}
+            initialPage={1}
+            initialTab="TRENDING"
+            setPage={setCurrentPage}
+            setCategory={setActiveTab}
+          />
           <div>
-            {activeTab === 'TRENDING' &&
+            {activeTab === "TRENDING" &&
               renderCardGrid(
                 state.trendingAnime,
                 state.loading.trending,
-                !!state.error,
+                !!state.error
               )}
-            {activeTab === 'POPULAR' &&
+            {activeTab === "POPULAR" &&
               renderCardGrid(
                 state.popularAnime,
                 state.loading.popular,
-                !!state.error,
+                !!state.error
               )}
-            {activeTab === 'TOP RATED' &&
+            {activeTab === "TOP RATED" &&
               renderCardGrid(
                 state.topAnime,
                 state.loading.topRated,
-                !!state.error,
+                !!state.error
               )}
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div
             style={{
-              fontSize: '1.25rem',
-              fontWeight: 'bold',
-            
+              fontSize: "1.25rem",
+              fontWeight: "bold",
             }}
-          >
-          
-          </div>
+          ></div>
           <HomeSideBar title="TOP AIRING" animeData={state.topAiring} />
-          <div
-           className="w-full h-8 md:h-10 border-1 rounded-md bg-list-background"
-          >
-          
-          </div>
-          <HomeSideBar title={`UPCOMING ${SEASON}`} animeData={state.upcoming} />
+          <div className="w-full h-8 md:h-10 border-1 rounded-md bg-list-background"></div>
+          <HomeSideBar
+            title={`UPCOMING ${SEASON}`}
+            animeData={state.upcoming}
+          />
         </div>
       </ContentSidebarLayout>
     </SimpleLayout>

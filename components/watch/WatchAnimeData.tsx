@@ -12,20 +12,20 @@ const AnimeDataContainer = styled.div`
 `;
 
 const AnimeDataContainerTop = styled.div`
-  border-radius: var(--global-border-radius);
-  background-color: var(--global-div-tr);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background-color: var(--card);
   margin: 1rem 0;
   padding: 0.75rem;
-  color: var(--global-text);
+  
   align-items: center;
   flex-direction: row;
   align-items: flex-start;
   display: flex;
 `;
 const AnimeDataContainerMiddle = styled.div`
-  border-radius: var(--global-border-radius);
+  border-radius: var(--radius);
   padding-top: 0.6rem;
-  color: var(--global-text);
   align-items: center;
   flex-direction: row;
   align-items: flex-start;
@@ -82,6 +82,7 @@ const AnimeDataText = styled.div`
     margin-top: 0rem;
     margin-bottom: 0.2rem;
     line-height: 1.3rem;
+    
     @media (max-width: 500px) {
       line-height: 1rem;
     }
@@ -90,6 +91,10 @@ const AnimeDataText = styled.div`
     line-height: 1rem;
     max-width: 50rem;
     font-size: 0.9rem;
+    padding: 0rem;
+    background-color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
   }
   strong {
     color: var(--global-text);
@@ -103,7 +108,7 @@ const AnimeDataText = styled.div`
 `;
 
 const AnimeInfoImage = styled.img`
-  border-radius: var(--global-border-radius);
+  border-radius: var(--radius);
   max-height: 15rem;
   width: 10.5rem;
   margin-right: 1rem;
@@ -116,10 +121,10 @@ const AnimeInfoImage = styled.img`
 
 const Button = styled.button`
   padding: 0.5rem 0.6rem;
-  background-color: var(--primary-accent);
+  background-color: var(--accent);
   color: white;
   border: none;
-  border-radius: var(--global-border-radius);
+  border-radius: var(--radius);
   cursor: pointer;
   transition: background-color 0.3s ease;
   outline: none;
@@ -127,7 +132,7 @@ const Button = styled.button`
   &:hover,
   &:active,
   &:focus {
-    background-color: var(--primary-accent-bg);
+    background-color: var(--primary-foreground);
   }
 
   @media (max-width: 1000px) {
@@ -139,9 +144,11 @@ const Button = styled.button`
 
 const ShowTrailerButton = styled(Button)`
   margin-right: 1rem;
-  padding: 0rem;
+  padding: 0.5rem;
   width: 10.5rem; //same as anime picture width.
-  background-color: var(--global-div);
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   transition:
     background-color 0.3s ease,
     transform 0.2s ease-in-out;
@@ -163,17 +170,19 @@ const MalAniContainer = styled.div`
   display: flex; /* or grid */
   gap: 0.5rem;
   margin-right: 1rem;
+  
 `;
 
 const MalAnilistSvg = styled.div`
   height: 2.5rem;
   width: 5rem;
-  border-radius: var(--global-border-radius);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--global-div);
   color: var(--global-text);
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   transition: 0.1s ease-in-out;
 
   &:hover,

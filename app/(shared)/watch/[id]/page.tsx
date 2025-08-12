@@ -7,7 +7,7 @@ import {
   fetchAnimeEpisodes,
   fetchAnimeStreamingLinks,
 } from "@/hooks/useApi";
-import { Player } from "@/components/watch/video/IFramePLayer";
+import { UnifiedPlayer } from "@/components/watch/video/UnifiedPlayer";
 import { EpisodeList } from "@/components/watch/EpisodeList";
 import { MediaSource } from "@/components/watch/video/MediaSource";
 import { WatchAnimeData } from "@/components/watch/WatchAnimeData";
@@ -103,9 +103,7 @@ export default function WatchPage({ params }: PageProps) {
           );
         }
 
-        console.log("Anime ID:", resolvedParams.id, "Episode:", ep);
       } catch (err) {
-        console.error("Failed to resolve params:", err);
         setError("Failed to load page parameters.");
         setLoading(false);
       }
@@ -123,7 +121,6 @@ export default function WatchPage({ params }: PageProps) {
       try {
         // Fetch anime info
         const animeData = await fetchAnimeInfo(animeId);
-        console.log("Fetched anime data:", animeData);
         setAnimeInfo(animeData);
 
         // Fetch episodes based on language preference
@@ -140,7 +137,6 @@ export default function WatchPage({ params }: PageProps) {
             url: ep.url,
           }));
           setEpisodes(transformedEpisodes);
-          console.log("Transformed episodes:", transformedEpisodes);
 
           // Find and set current episode
           const currentEp = transformedEpisodes.find(
@@ -157,7 +153,6 @@ export default function WatchPage({ params }: PageProps) {
 
         setError(null);
       } catch (err) {
-        console.error("Failed to fetch anime data:", err);
         setError("Failed to load anime information. Please try again later.");
       } finally {
         setLoading(false);
@@ -195,16 +190,14 @@ export default function WatchPage({ params }: PageProps) {
         cover: animeInfo?.cover,
       };
       localStorage.setItem("watch-history", JSON.stringify(watchHistory));
-      console.log("Saved to watch history:", watchHistory[animeId]);
     } catch (error) {
-      console.error("Failed to save to watch history:", error);
+      // Silent error handling
     }
   }, [animeId, animeInfo]);
 
   // Save to history whenever currentEpisode changes (including page load)
   useEffect(() => {
     if (currentEpisode && animeInfo) {
-      console.log("Current episode changed:", currentEpisode);
       saveToWatchHistory(currentEpisode);
     }
   }, [currentEpisode, animeInfo, saveToWatchHistory]);
@@ -312,18 +305,19 @@ export default function WatchPage({ params }: PageProps) {
             {/* Video Player */}
             <div className="relative rounded-lg w-full">
               {currentEpisode ? (
-                <Player
+                <UnifiedPlayer
                   episodeId={currentEpisode.id}
-                  // banner={animeInfo.cover}
-                  // malId={animeInfo.malId}
-                  // updateDownloadLink={updateDownloadLink}
+                  banner={animeInfo.cover}
+                  malId={animeInfo.malId}
+                  updateDownloadLink={updateDownloadLink}
                   onEpisodeEnd={handleEpisodeEnd}
                   onPrevEpisode={goToPreviousEpisode}
                   onNextEpisode={goToNextEpisode}
                   animeTitle={animeTitle}
-                  // episodeNumber={episodeNumber.toString()}
+                  episodeNumber={episodeNumber.toString()}
                   serverName={serverName}
-                  category={language}
+                  language={language}
+                  defaultMode="advanced"
                 />
               ) : (
                 <div className="flex items-center justify-center h-full">
@@ -342,7 +336,7 @@ export default function WatchPage({ params }: PageProps) {
                 setServerName={handleServerChange}
                 language={language}
                 setLanguage={handleLanguageChange}
-                downloadLink={downloadLink}
+                
                 episodeId={episodeNumber.toString()}
                 airingTime={
                 animeInfo && animeInfo.status === 'Ongoing'
