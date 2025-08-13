@@ -273,39 +273,39 @@ export const EpisodeList: React.FC<Props> = ({
   // Render the EpisodeList component
   return (
     <div 
-      className="bg-secondary text-foreground rounded-lg overflow-hidden flex-grow flex flex-col max-lg:max-h-72 max-sm:h-auto"
+      className="bg-card text-foreground rounded-lg overflow-hidden flex-grow flex flex-col max-lg:max-h-72 max-sm:h-auto"
       style={{ maxHeight: dynamicMaxHeight() }}
     >
       {/* Controls Container */}
-      <div className="flex items-center bg-secondary border-b-2 border-border py-1">
+      <div className="flex items-center justify-between bg-secondary border-b-2 border-border py-1">
         <select
-          className="p-2 bg-secondary text-foreground border-none rounded-lg"
+          className="p-2 text-sm bg-secondary text-foreground border-none rounded-lg"
           onChange={handleIntervalChange}
           value={`${interval[0]}-${interval[1]}`}
         >
           {intervalOptions.map(({ start, end }, index) => (
             <option key={index} value={`${start}-${end}`}>
-              Episodes {start + 1} - {end + 1}
+              EPS {start + 1} - {end + 1}
             </option>
           ))}
         </select>
 
-        <div className="flex items-center bg-secondary border-2 border-border p-2 gap-1 mx-2 rounded-lg transition-colors hover:bg-muted focus-within:bg-muted">
+        <div className="flex items-center bg-secondary border-1 border-border px-1.5 py-2 gap-1 mx-2 rounded-lg transition-colors hover:bg-muted focus-within:bg-muted">
           <div className="text-foreground opacity-50 text-xs transition-opacity max-md:hidden">
             <FontAwesomeIcon icon={faSearch} />
           </div>
           <input
             type="text"
-            placeholder="Search episodes..."
+            placeholder="Filter episodes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-none bg-transparent text-foreground outline-none w-full placeholder:text-muted-foreground"
+            className="border-none text-sm bg-transparent text-foreground outline-none w-full placeholder:text-muted-foreground"
           />
         </div>
 
         <button
           onClick={toggleLayoutPreference}
-          className="bg-secondary border-2 border-border p-2 mr-2 cursor-pointer text-foreground rounded-lg transition-colors hover:bg-muted focus:bg-muted active:bg-muted"
+          className="bg-secondary border-1 border-border px-2 py-1.5 mr-2 cursor-pointer text-foreground rounded-sm transition-colors hover:bg-muted focus:bg-muted active:bg-muted"
         >
           {displayMode === 'list' && <FontAwesomeIcon icon={faThList} />}
           {displayMode === 'grid' && <FontAwesomeIcon icon={faTh} />}
@@ -330,7 +330,7 @@ export const EpisodeList: React.FC<Props> = ({
 
           // Dynamic button classes based on state
           const getButtonClasses = () => {
-            const baseClasses = "transition-all duration-300 border-none rounded-lg cursor-pointer animate-[popIn_0.3s_ease-in-out] hover:pl-4";
+            const baseClasses = "rounded-sm border-1 hover:border-primary transition-colors flex items-center justify-center";
             
             if (isSelected) {
               return `${baseClasses} ${
@@ -339,7 +339,7 @@ export const EpisodeList: React.FC<Props> = ({
                   : 'bg-accent text-accent-foreground'
               } hover:brightness-110`;
             } else if (isWatched) {
-              return `${baseClasses} bg-accent text-accent-foreground brightness-80 hover:brightness-110`;
+              return `${baseClasses} bg-primary text-primary-foreground brightness-80 hover:brightness-110`;
             } else {
               return `${baseClasses} bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:brightness-105`;
             }
@@ -360,17 +360,21 @@ export const EpisodeList: React.FC<Props> = ({
               }}
             >
               {displayMode === 'imageList' ? (
-                <>
-                  <div>
-                    <span>{episode.number}. </span>
-                    <span className="p-2">{episode.title}</span>
+                <div className="flex items-center gap-3 w-full">
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={episode.image}
+                      alt={`Episode ${episode.number} - ${episode.title}`}
+                      className="w-full h-24 object-cover rounded-lg border-2 border-border max-sm:w-full max-sm:h-20"
+                    />
+                    <div className="absolute bottom-1 left-1 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
+                      EP {episode.number}
+                    </div>
                   </div>
-                  <img
-                    src={episode.image}
-                    alt={`Episode ${episode.number} - ${episode.title}`}
-                    className="max-w-64 max-h-36 h-auto mt-2 rounded-lg max-sm:max-w-32 max-sm:max-h-20"
-                  />
-                </>
+                  <div className="flex-1 text-left items-start top-1">
+                    <span className="text-sm font-medium">{episode.title}</span>
+                  </div>
+                </div>
               ) : displayMode === 'grid' ? (
                 <div className="flex flex-col justify-center items-center h-full">
                   {isSelected ? (
@@ -381,11 +385,11 @@ export const EpisodeList: React.FC<Props> = ({
                 </div>
               ) : (
                 // List layout
-                <>
-                  <span>{episode.number}. </span>
-                  <span className="p-2">{episode.title}</span>
-                  {isSelected && <FontAwesomeIcon icon={faPlay} />}
-                </>
+                <div className="flex justify-start gap-2 items-center w-full text-left px-1">
+                  <span >{isSelected ? <FontAwesomeIcon icon={faPlay} /> : (episode.number + ".")} </span>
+                  <span className="p-0">{episode.title}</span>
+                  
+                </div>
               )}
             </button>
           );
